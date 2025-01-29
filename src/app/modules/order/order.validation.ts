@@ -12,7 +12,7 @@ const updateOrderSchema = z.object({
   }),
 });
 
-export const orderValidations = {
+export const OrderValidations = {
   createOrderSchema,
   updateOrderSchema,
 };

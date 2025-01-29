@@ -17,6 +17,7 @@ const seedAdmin = async () => {
   const isAdminExits = await User.findOne({ role: USER_ROLE.admin });
 
   if (!isAdminExits) {
+    console.log(adminUser);
     await User.create(adminUser);
   }
 };

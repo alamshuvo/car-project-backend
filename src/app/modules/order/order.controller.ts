@@ -1,10 +1,10 @@
 import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
-import { orderServices } from './order.service';
+import { OrderServices } from './order.service';
 
 const createOne = catchAsync(async (req, res) => {
-  const result = await orderServices.createOneIntoDB(req.body);
+  const result = await OrderServices.createOneIntoDB(req.body);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -14,7 +14,7 @@ const createOne = catchAsync(async (req, res) => {
 });
 
 const getAll = catchAsync(async (req, res) => {
-  const result = await orderServices.getAllFromDB();
+  const result = await OrderServices.getAllFromDB();
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -24,7 +24,7 @@ const getAll = catchAsync(async (req, res) => {
 });
 
 const getOne = catchAsync(async (req, res) => {
-  const result = await orderServices.getOneFromDB(req.params.id);
+  const result = await OrderServices.getOneFromDB(req.params.id);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -34,7 +34,7 @@ const getOne = catchAsync(async (req, res) => {
 });
 
 const updateOne = catchAsync(async (req, res) => {
-  const result = await orderServices.updateOneIntoDB(req.params.id, req.body);
+  const result = await OrderServices.updateOneIntoDB(req.params.id, req.body);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -44,7 +44,7 @@ const updateOne = catchAsync(async (req, res) => {
 });
 
 const deleteOne = catchAsync(async (req, res) => {
-  const result = await orderServices.deleteOneFromDB(req.params.id);
+  const result = await OrderServices.deleteOneFromDB(req.params.id);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -53,7 +53,7 @@ const deleteOne = catchAsync(async (req, res) => {
   });
 });
 
-export const orderControllers = {
+export const OrderControllers = {
   createOne,
   getAll,
   getOne,

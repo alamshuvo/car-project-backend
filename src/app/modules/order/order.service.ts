@@ -18,14 +18,14 @@ const getOneFromDB = async (id: string): Promise<IOrder | null> => {
 
 const updateOneIntoDB = async (
   id: string,
-  payload: Partial<IOrder>
+  payload: Partial<IOrder>,
 ): Promise<IOrder | null> => {
   const result = await Order.findByIdAndUpdate(id, payload, { new: true });
   return result;
 };
 
 const deleteOneFromDB = async (id: string): Promise<IOrder | null> => {
-  const result = await User.findByIdAndUpdate(
+  const result = await Order.findByIdAndUpdate(
     id,
     { isDeleted: true },
     { new: true },
@@ -33,7 +33,7 @@ const deleteOneFromDB = async (id: string): Promise<IOrder | null> => {
   return result;
 };
 
-export const orderServices = {
+export const OrderServices = {
   createOneIntoDB,
   getAllFromDB,
   getOneFromDB,

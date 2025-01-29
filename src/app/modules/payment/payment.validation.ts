@@ -12,7 +12,7 @@ const updatePaymentSchema = z.object({
   }),
 });
 
-export const paymentValidations = {
+export const PaymentValidations = {
   createPaymentSchema,
   updatePaymentSchema,
 };

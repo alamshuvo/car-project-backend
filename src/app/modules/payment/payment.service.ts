@@ -18,14 +18,14 @@ const getOneFromDB = async (id: string): Promise<IPayment | null> => {
 
 const updateOneIntoDB = async (
   id: string,
-  payload: Partial<IPayment>
+  payload: Partial<IPayment>,
 ): Promise<IPayment | null> => {
   const result = await Payment.findByIdAndUpdate(id, payload, { new: true });
   return result;
 };
 
 const deleteOneFromDB = async (id: string): Promise<IPayment | null> => {
-  const result = await User.findByIdAndUpdate(
+  const result = await Payment.findByIdAndUpdate(
     id,
     { isDeleted: true },
     { new: true },
@@ -33,7 +33,7 @@ const deleteOneFromDB = async (id: string): Promise<IPayment | null> => {
   return result;
 };
 
-export const paymentServices = {
+export const PaymentServices = {
   createOneIntoDB,
   getAllFromDB,
   getOneFromDB,

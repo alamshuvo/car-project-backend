@@ -1,3 +1,4 @@
+import AppError from '../../error/AppError';
 import { IProduct } from './product.interface';
 import { Product } from './product.model';
 
@@ -18,22 +19,25 @@ const getOneFromDB = async (id: string): Promise<IProduct | null> => {
 
 const updateOneIntoDB = async (
   id: string,
-  payload: Partial<IProduct>
+  payload: Partial<IProduct>,
 ): Promise<IProduct | null> => {
   const result = await Product.findByIdAndUpdate(id, payload, { new: true });
   return result;
 };
 
 const deleteOneFromDB = async (id: string): Promise<IProduct | null> => {
-  const result = await User.findByIdAndUpdate(
+  const result = await Product.findByIdAndUpdate(
     id,
     { isDeleted: true },
     { new: true },
   );
+  if (!result) {
+    throw new AppError(404, 'Invalid productId.');
+  }
   return result;
 };
 
-export const productServices = {
+export const ProductServices = {
   createOneIntoDB,
   getAllFromDB,
   getOneFromDB,

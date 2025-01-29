@@ -1,10 +1,10 @@
 import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
-import { paymentServices } from './payment.service';
+import { PaymentServices } from './payment.service';
 
 const createOne = catchAsync(async (req, res) => {
-  const result = await paymentServices.createOneIntoDB(req.body);
+  const result = await PaymentServices.createOneIntoDB(req.body);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -14,7 +14,7 @@ const createOne = catchAsync(async (req, res) => {
 });
 
 const getAll = catchAsync(async (req, res) => {
-  const result = await paymentServices.getAllFromDB();
+  const result = await PaymentServices.getAllFromDB();
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -24,7 +24,7 @@ const getAll = catchAsync(async (req, res) => {
 });
 
 const getOne = catchAsync(async (req, res) => {
-  const result = await paymentServices.getOneFromDB(req.params.id);
+  const result = await PaymentServices.getOneFromDB(req.params.id);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -34,7 +34,7 @@ const getOne = catchAsync(async (req, res) => {
 });
 
 const updateOne = catchAsync(async (req, res) => {
-  const result = await paymentServices.updateOneIntoDB(req.params.id, req.body);
+  const result = await PaymentServices.updateOneIntoDB(req.params.id, req.body);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -44,7 +44,7 @@ const updateOne = catchAsync(async (req, res) => {
 });
 
 const deleteOne = catchAsync(async (req, res) => {
-  const result = await paymentServices.deleteOneFromDB(req.params.id);
+  const result = await PaymentServices.deleteOneFromDB(req.params.id);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -53,7 +53,7 @@ const deleteOne = catchAsync(async (req, res) => {
   });
 });
 
-export const paymentControllers = {
+export const PaymentControllers = {
   createOne,
   getAll,
   getOne,

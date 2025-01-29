@@ -3,7 +3,43 @@ import { IProduct } from './product.interface';
 
 const productSchema = new Schema<IProduct>(
   {
-    // Add your schema fields here
+    name: {
+      type: String,
+      required: true,
+    },
+    brand: {
+      type: String,
+      required: true,
+    },
+    price: {
+      type: Number,
+      required: true,
+    },
+    model: {
+      type: String,
+      required: true,
+    },
+    stock: {
+      type: Number,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: false,
+    },
+    category: {
+      type: String,
+      required: false,
+    },
+    images: {
+      type: [String],
+      default: [],
+      required: false,
+    },
+    ratings: {
+      type: String,
+      required: false,
+    },
     isDeleted: {
       type: Boolean,
       default: false,

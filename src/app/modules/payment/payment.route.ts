@@ -1,25 +1,25 @@
 import express from 'express';
 import validateRequest from '../../middlewares/validateRequest';
-import { paymentControllers } from './payment.controller';
-import { paymentValidations } from './payment.validation';
+import { PaymentControllers } from './payment.controller';
+import { PaymentValidations } from './payment.validation';
 
 const router = express.Router();
 
 router.post(
   '/create',
-  validateRequest(paymentValidations.createPaymentSchema),
-  paymentControllers.createOne,
+  validateRequest(PaymentValidations.createPaymentSchema),
+  PaymentControllers.createOne,
 );
 
-router.get('/', paymentControllers.getAll);
-router.get('/:id', paymentControllers.getOne);
+router.get('/', PaymentControllers.getAll);
+router.get('/:id', PaymentControllers.getOne);
 
 router.patch(
   '/:id',
-  validateRequest(paymentValidations.updatePaymentSchema),
-  paymentControllers.updateOne,
+  validateRequest(PaymentValidations.updatePaymentSchema),
+  PaymentControllers.updateOne,
 );
 
-router.delete('/:id', paymentControllers.deleteOne);
+router.delete('/:id', PaymentControllers.deleteOne);
 
 export const PaymentRoutes = router;

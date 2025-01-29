@@ -1,25 +1,25 @@
 import express from 'express';
 import validateRequest from '../../middlewares/validateRequest';
-import { orderControllers } from './order.controller';
-import { orderValidations } from './order.validation';
+import { OrderControllers } from './order.controller';
+import { OrderValidations } from './order.validation';
 
 const router = express.Router();
 
 router.post(
   '/create',
-  validateRequest(orderValidations.createOrderSchema),
-  orderControllers.createOne,
+  validateRequest(OrderValidations.createOrderSchema),
+  OrderControllers.createOne,
 );
 
-router.get('/', orderControllers.getAll);
-router.get('/:id', orderControllers.getOne);
+router.get('/', OrderControllers.getAll);
+router.get('/:id', OrderControllers.getOne);
 
 router.patch(
   '/:id',
-  validateRequest(orderValidations.updateOrderSchema),
-  orderControllers.updateOne,
+  validateRequest(OrderValidations.updateOrderSchema),
+  OrderControllers.updateOne,
 );
 
-router.delete('/:id', orderControllers.deleteOne);
+router.delete('/:id', OrderControllers.deleteOne);
 
 export const OrderRoutes = router;
