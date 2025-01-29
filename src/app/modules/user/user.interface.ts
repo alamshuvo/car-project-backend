@@ -3,6 +3,7 @@ import { Model } from 'mongoose';
 export type TUserRole = 'user' | 'admin';
 
 export interface TUser {
+  _id?: string;
   name: string;
   email: string;
   password: string;

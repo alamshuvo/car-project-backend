@@ -1,5 +1,12 @@
 import { FilterQuery, Query } from 'mongoose';
 
+export type TMeta = {
+  page: number;
+  limit: number;
+  total: number;
+  totalPage: number;
+};
+
 class QueryBuilder<T> {
   constructor(
     public modelQuery: Query<T[], T>,
@@ -40,6 +47,39 @@ class QueryBuilder<T> {
 
     this.modelQuery = this.modelQuery.sort(sort);
     return this;
+  }
+
+  paginate() {
+    const page = Number(this?.query?.page) || 1;
+    const limit = Number(this?.query?.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    this.modelQuery = this.modelQuery.skip(skip).limit(limit);
+
+    return this;
+  }
+
+  fields() {
+    const fields =
+      (this?.query?.fields as string)?.split(',')?.join(' ') || '-__v';
+
+    this.modelQuery = this.modelQuery.select(fields);
+    return this;
+  }
+
+  async countTotal() {
+    const totalQueries = this.modelQuery.getFilter();
+    const total = await this.modelQuery.model.countDocuments(totalQueries);
+    const page = Number(this?.query?.page) || 1;
+    const limit = Number(this?.query?.limit) || 10;
+    const totalPage = Math.ceil(total / limit);
+
+    return {
+      page,
+      limit,
+      total,
+      totalPage,
+    } as TMeta;
   }
 }
 

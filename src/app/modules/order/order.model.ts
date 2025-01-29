@@ -1,9 +1,25 @@
 import { model, Schema } from 'mongoose';
-import { IOrder } from './order.interface';
+import { IOrder, orderStatuses } from './order.interface';
 
 const orderSchema = new Schema<IOrder>(
   {
-    // Add your schema fields here
+    user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    products: [
+      {
+        productId: {
+          type: Schema.Types.ObjectId,
+          ref: 'Product',
+          required: true,
+        },
+        quantity: { type: Number, required: true, min: 1 },
+      },
+    ],
+    totalPrice: { type: Number, required: true, min: 0 },
+    status: {
+      type: String,
+      enum: orderStatuses,
+      default: 'pending',
+    },
     isDeleted: {
       type: Boolean,
       default: false,
