@@ -1,8 +1,9 @@
 import { model, Schema } from 'mongoose';
-import { IOrder, orderStatuses } from './order.interface';
+import { ICart } from './cart.interface';
 
-const orderSchema = new Schema<IOrder>(
+const cartSchema = new Schema<ICart>(
   {
+    //* cart schema fields
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     products: [
       {
@@ -16,11 +17,6 @@ const orderSchema = new Schema<IOrder>(
       },
     ],
     totalPrice: { type: Number, required: true, min: 0 },
-    status: {
-      type: String,
-      enum: orderStatuses,
-      default: 'pending',
-    },
     isDeleted: {
       type: Boolean,
       default: false,
@@ -35,16 +31,16 @@ const orderSchema = new Schema<IOrder>(
 );
 
 // pre save middleware/hook
-orderSchema.pre('save', async function (next) {
+cartSchema.pre('save', async function (next) {
   next();
 });
 
 // post save middleware/hook
-orderSchema.post('save', function (doc, next) {
+cartSchema.post('save', function (doc, next) {
   next();
 });
 
-orderSchema.pre('updateOne', async function (next) {
+cartSchema.pre('updateOne', async function (next) {
   next();
 });
-export const Order = model<IOrder>('Order', orderSchema);
+export const Cart = model<ICart>('Cart', cartSchema);

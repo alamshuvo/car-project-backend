@@ -7,6 +7,7 @@ const createOrderSchema = z.object({
       z.object({
         productId: z.string(),
         quantity: z.number().min(1),
+        color: z.string(),
       }),
     ),
   }),
@@ -19,6 +20,7 @@ const updateOrderSchema = z.object({
         z.object({
           productId: z.string(),
           quantity: z.number().min(1),
+          color: z.string(),
         }),
       )
       .optional(),

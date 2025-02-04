@@ -8,12 +8,13 @@ export const orderStatuses = [
 ];
 
 interface IOrderProduct {
-  productId: Types.ObjectId; // Reference to Product model
+  productId: Types.ObjectId;
   quantity: number;
+  color: string;
 }
 
 export interface IOrder {
-  user: Types.ObjectId; // Reference to User model
+  userId: Types.ObjectId; // Reference to User model
   products: IOrderProduct[];
   totalPrice: number;
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';

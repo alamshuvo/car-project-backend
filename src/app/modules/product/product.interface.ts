@@ -10,5 +10,11 @@ export interface IProduct {
   ratings?: number;
   createdAt?: Date;
   updatedAt?: Date;
+  specifications: {
+    seatingCapacity: number;
+    fuelType: string;
+    mileage: string;
+    hasAC: boolean;
+  };
   isDeleted?: boolean;
 }

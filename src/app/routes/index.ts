@@ -5,6 +5,7 @@ import { AdminRoutes } from '../modules/admin/admin.route';
 import { ProductRoutes } from '../modules/product/product.route';
 import { OrderRoutes } from '../modules/order/order.route';
 import { PaymentRoutes } from '../modules/payment/payment.route';
+import { ReviewRoutes } from '../modules/review/review.route';
 
 const router = Router();
 
@@ -34,6 +35,10 @@ const moduleRoutes = [
   {
     path: `${apiPrefix}/orders`,
     route: OrderRoutes,
+  },
+  {
+    path: `${apiPrefix}/reviews`,
+    route: ReviewRoutes,
   },
   {
     path: `${apiPrefix}/payments`,

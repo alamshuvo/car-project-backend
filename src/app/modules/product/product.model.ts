@@ -40,6 +40,13 @@ const productSchema = new Schema<IProduct>(
       type: String,
       required: false,
     },
+    specifications: {
+      seatingCapacity: { type: Number, required: true },
+      fuelType: { type: String, required: true },
+      mileage: { type: String, required: true },
+      hasAC: { type: Boolean, default: false },
+      availableColors: { type: [String], default: [] },
+    },
     isDeleted: {
       type: Boolean,
       default: false,
