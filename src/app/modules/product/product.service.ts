@@ -1,4 +1,6 @@
+import QueryBuilder from '../../builder/QueryBuilder';
 import AppError from '../../error/AppError';
+import { productSearchableFields } from './product.constant';
 import { IProduct } from './product.interface';
 import { Product } from './product.model';
 
@@ -7,9 +9,20 @@ const createOneIntoDB = async (payload: IProduct): Promise<IProduct> => {
   return result;
 };
 
-const getAllFromDB = async (): Promise<IProduct[]> => {
-  const result = await Product.find();
-  return result;
+const getAllFromDB = async (query: Record<string, unknown>) => {
+  const productQuery = new QueryBuilder(Product.find(), query);
+  productQuery
+    .search(productSearchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+  const data = await productQuery.modelQuery;
+  const meta = await productQuery.countTotal();
+  return {
+    meta,
+    data,
+  };
 };
 
 const getOneFromDB = async (id: string): Promise<IProduct | null> => {

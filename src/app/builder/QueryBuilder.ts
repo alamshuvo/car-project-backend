@@ -8,6 +8,13 @@ export type TMeta = {
 };
 
 class QueryBuilder<T> {
+  /*************  ✨ Codeium Command ⭐  *************/
+  /**
+   * Construct a QueryBuilder instance.
+   * @param {Query<T[], T>} modelQuery - The Mongoose query object
+   * @param {Record<string, unknown>} query - The query object containing search, filter, sort, and pagination criteria.
+   */
+  /******  f9424549-b5d1-4440-ab01-204b3c317e52  *******/
   constructor(
     public modelQuery: Query<T[], T>,
     public query: Record<string, unknown>,
@@ -29,10 +36,40 @@ class QueryBuilder<T> {
 
   filter() {
     const queryObj = { ...this.query }; // copy
-
     // Filtering
     const excludeFields = ['search', 'sortOrder', 'sortBy', 'page', 'fields'];
     excludeFields.forEach((el) => delete queryObj[el]);
+
+    // Add custom filters for price, brand, category, and stock
+    if (queryObj.price) {
+      const priceRange = (queryObj.price as string).split('-');
+      queryObj.price = {
+        $gte: Number(priceRange[0]),
+        $lte: Number(priceRange[1]),
+      };
+    } else {
+      delete queryObj['price'];
+    }
+
+    if (queryObj.brand !== 'null' && queryObj.brand) {
+      queryObj.brand = { $regex: new RegExp(`^${queryObj.brand}$`, 'i') };
+    } else {
+      delete queryObj['brand'];
+    }
+
+    if (queryObj.category !== 'null' && queryObj.category) {
+      // Filter category equal to the value (e.g., Sedan)
+      queryObj.category = { $regex: new RegExp(`^${queryObj.category}$`, 'i') };
+    } else {
+      delete queryObj['category'];
+    }
+
+    if (queryObj.stock === '>0') {
+      queryObj.stock = { $gt: 0 };
+    } else {
+      delete queryObj['stock'];
+    }
+
     this.modelQuery = this.modelQuery.find(queryObj as FilterQuery<T>);
 
     return this;
