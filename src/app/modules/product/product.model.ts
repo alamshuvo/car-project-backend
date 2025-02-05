@@ -73,4 +73,9 @@ productSchema.post('save', function (doc, next) {
 productSchema.pre('updateOne', async function (next) {
   next();
 });
+
+productSchema.pre('find', async function (next) {
+  this.find({ isDeleted: { $ne: true } });
+  next();
+});
 export const Product = model<IProduct>('Product', productSchema);
