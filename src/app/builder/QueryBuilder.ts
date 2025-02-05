@@ -4,17 +4,10 @@ export type TMeta = {
   page: number;
   limit: number;
   total: number;
-  totalPage: number;
+  totalPages: number;
 };
 
 class QueryBuilder<T> {
-  /*************  ✨ Codeium Command ⭐  *************/
-  /**
-   * Construct a QueryBuilder instance.
-   * @param {Query<T[], T>} modelQuery - The Mongoose query object
-   * @param {Record<string, unknown>} query - The query object containing search, filter, sort, and pagination criteria.
-   */
-  /******  f9424549-b5d1-4440-ab01-204b3c317e52  *******/
   constructor(
     public modelQuery: Query<T[], T>,
     public query: Record<string, unknown>,
@@ -37,7 +30,14 @@ class QueryBuilder<T> {
   filter() {
     const queryObj = { ...this.query }; // copy
     // Filtering
-    const excludeFields = ['search', 'sortOrder', 'sortBy', 'page', 'fields'];
+    const excludeFields = [
+      'search',
+      'sortOrder',
+      'sortBy',
+      'page',
+      'fields',
+      'limit',
+    ];
     excludeFields.forEach((el) => delete queryObj[el]);
 
     // Add custom filters for price, brand, category, and stock
@@ -109,13 +109,12 @@ class QueryBuilder<T> {
     const total = await this.modelQuery.model.countDocuments(totalQueries);
     const page = Number(this?.query?.page) || 1;
     const limit = Number(this?.query?.limit) || 10;
-    const totalPage = Math.ceil(total / limit);
-
+    const totalPages = Math.ceil(total / limit);
     return {
       page,
       limit,
       total,
-      totalPage,
+      totalPages,
     } as TMeta;
   }
 }

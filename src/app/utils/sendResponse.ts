@@ -4,6 +4,12 @@ type TResponse<T> = {
   success: boolean;
   message?: string;
   data?: T;
+  meta?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPage: number;
+  };
 };
 
 const sendResponse = <T>(res: Response, responseData: TResponse<T>) => {
@@ -14,6 +20,9 @@ const sendResponse = <T>(res: Response, responseData: TResponse<T>) => {
   };
   if (responseData.data && Object.keys(responseData.data).length > 0) {
     response.data = responseData.data;
+  }
+  if (responseData.meta && Object.keys(responseData.meta).length > 0) {
+    response.meta = responseData.meta;
   }
   res.status(responseData.statusCode).json(response);
 };
