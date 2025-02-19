@@ -27,6 +27,7 @@ const createProductSchema = z.object({
 
 const updateProductSchema = z.object({
   body: z.object({
+    _id: z.string().optional(),
     name: z.string().optional(),
     brand: z.string().optional(),
     price: z.number().min(1).optional(),

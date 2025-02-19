@@ -16,8 +16,8 @@ const createOneIntoDB = async (
 ): Promise<IOrder | undefined> => {
   //* map the product ids with quantity
   const productRequests = payload.products.reduce(
-    (map, { productId, quantity }) => {
-      map.set(productId.toString(), quantity);
+    (map, { product, quantity }) => {
+      map.set(product.toString(), quantity);
       return map;
     },
     new Map<string, number>(),
@@ -58,7 +58,7 @@ const createOneIntoDB = async (
     session.startTransaction();
     //* create the order
     const result = await Order.create({
-      user: user._id,
+      userId: user._id,
       totalPrice,
       products: payload.products,
       status: 'pending',
@@ -66,9 +66,9 @@ const createOneIntoDB = async (
     if (result) {
       //* update the products quantity
       const bulkUpdateOperations = payload.products.map(
-        ({ productId, quantity }) => ({
+        ({ product, quantity }) => ({
           updateOne: {
-            filter: { _id: productId },
+            filter: { _id: product },
             update: { $inc: { stock: -quantity } },
           },
         }),
@@ -80,7 +80,7 @@ const createOneIntoDB = async (
     await session.commitTransaction();
     await session.endSession();
 
-    return result;
+    return await result.populate('products.product');
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (err) {
     await session.abortTransaction();
@@ -91,24 +91,50 @@ const createOneIntoDB = async (
     );
   }
 };
-const getAllFromDB = async (query: Record<string, unknown>) => {
-  const queryBuilder = new QueryBuilder(Order.find(), query);
+const getAllFromDB = async (
+  query: Record<string, unknown>,
+  userJWTDecoded: JwtPayload,
+) => {
+  const user = await User.isUserExistByEmail(userJWTDecoded.email);
+  if (!user?._id)
+    throw new AppError(
+      httpStatus.UNAUTHORIZED,
+      'You are not authorized to view this!',
+    );
+
+  let find = {};
+  if (user.role === 'user') find = { userId: user._id };
+
+  const queryBuilder = new QueryBuilder(Order.find(find), query);
   queryBuilder
     .search(orderSearchableFields)
-    // .filter()
+    .filter()
     .sort()
     .paginate()
     .fields();
-  const result = await queryBuilder.modelQuery;
+  const data = await queryBuilder.modelQuery.populate('products.product');
   const meta = await queryBuilder.countTotal();
   return {
     meta,
-    result,
+    data,
   };
 };
 
-const getOneFromDB = async (id: string): Promise<IOrder | null> => {
-  const result = await Order.findById(id);
+const getOneFromDB = async (
+  id: string,
+  userJWTDecoded: JwtPayload,
+): Promise<IOrder | null> => {
+  const user = await User.isUserExistByEmail(userJWTDecoded.email);
+  if (!user?._id)
+    throw new AppError(
+      httpStatus.UNAUTHORIZED,
+      'You are not authorized to view this!',
+    );
+
+  const result = await Order.findById(id).populate('products.product');
+  if (!result) throw new AppError(httpStatus.NOT_FOUND, 'Order not found!');
+  if (user.role === 'user' && result?.userId.toString() !== user._id.toString())
+    throw new AppError(httpStatus.FORBIDDEN, 'Order not found!');
   return result;
 };
 
@@ -129,8 +155,8 @@ const updateOneIntoDB = async (
     if (payload.products && payload.products.length > 0) {
       //* Map requested product quantities
       const productRequests = new Map<string, number>();
-      payload.products.forEach(({ productId, quantity }) => {
-        productRequests.set(productId.toString(), quantity);
+      payload.products.forEach(({ product, quantity }) => {
+        productRequests.set(product.toString(), quantity);
       });
 
       //* Fetch product details
@@ -170,20 +196,20 @@ const updateOneIntoDB = async (
       }[] = [];
 
       // Revert previous stock
-      existingOrder.products.forEach(({ productId, quantity }) => {
+      existingOrder.products.forEach(({ product, quantity }) => {
         bulkUpdateOperations.push({
           updateOne: {
-            filter: { _id: productId },
+            filter: { _id: product },
             update: { $inc: { stock: quantity } }, // Add back previous stock
           },
         });
       });
 
       // Deduct new stock
-      payload.products.forEach(({ productId, quantity }) => {
+      payload.products.forEach(({ product, quantity }) => {
         bulkUpdateOperations.push({
           updateOne: {
-            filter: { _id: productId },
+            filter: { _id: product },
             update: { $inc: { stock: -quantity } }, // Reduce new stock
           },
         });
@@ -219,20 +245,53 @@ const changeStatusOfOrderIntoDB = async (
   id: string,
   payload: Pick<IOrder, 'status'>,
 ): Promise<IOrder | null> => {
-  // Check if order exists
-  const existingOrder = await Order.findById(id);
-  if (!existingOrder) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Order not found!');
+  const session = await startSession();
+  session.startTransaction();
+  try {
+    // Find the order with its products
+    const order = await Order.findById(id).session(session).lean();
+    if (!order) {
+      throw new Error('Order not found');
+    }
+    if (order.status === 'cancelled') {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Order is already cancelled!');
+    }
+
+    // Determine if stock should be increased or decreased
+    const isCancelling = payload.status === 'cancelled';
+
+    // Prepare stock updates
+    const stockUpdates = order.products.map(({ product, quantity }) => ({
+      updateOne: {
+        filter: { _id: product },
+        update: { $inc: { stock: isCancelling ? quantity : -quantity } },
+      },
+    }));
+
+    // Apply stock updates using bulkWrite within session
+    await Product.bulkWrite(stockUpdates, { session });
+
+    // Update order status
+    const updatedOrder = await Order.findByIdAndUpdate(
+      id,
+      { status: payload.status },
+      { runValidators: true, new: true, session },
+    ).lean();
+
+    // Commit transaction
+    await session.commitTransaction();
+    session.endSession();
+
+    return updatedOrder;
+  } catch {
+    // Rollback transaction on error
+    await session.abortTransaction();
+    session.endSession();
+    throw new AppError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      'Failed to update order status',
+    );
   }
-
-  // Update order status
-  const updatedOrder = await Order.findByIdAndUpdate(
-    id,
-    { status: payload.status },
-    { runValidators: true, new: true },
-  ).lean();
-
-  return updatedOrder;
 };
 
 const deleteOneFromDB = async (id: string): Promise<IOrder | null> => {

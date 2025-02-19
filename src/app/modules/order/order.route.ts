@@ -13,8 +13,8 @@ router.post(
   OrderControllers.createOne,
 );
 
-router.get('/', OrderControllers.getAll);
-router.get('/:id', OrderControllers.getOne);
+router.get('/', auth('user', 'admin'), OrderControllers.getAll);
+router.get('/:id', auth('user', 'admin'), OrderControllers.getOne);
 
 router.patch(
   '/:id',

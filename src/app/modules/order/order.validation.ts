@@ -5,7 +5,7 @@ const createOrderSchema = z.object({
   body: z.object({
     products: z.array(
       z.object({
-        productId: z.string(),
+        product: z.string(),
         quantity: z.number().min(1),
         color: z.string(),
       }),
@@ -18,7 +18,7 @@ const updateOrderSchema = z.object({
     products: z
       .array(
         z.object({
-          productId: z.string(),
+          product: z.string(),
           quantity: z.number().min(1),
           color: z.string(),
         }),

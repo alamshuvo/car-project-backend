@@ -8,7 +8,7 @@ export const orderStatuses = [
 ];
 
 interface IOrderProduct {
-  productId: Types.ObjectId;
+  product: Types.ObjectId;
   quantity: number;
   color: string;
 }

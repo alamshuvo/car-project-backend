@@ -15,7 +15,8 @@ const createOne = catchAsync(async (req, res) => {
 });
 
 const getAll = catchAsync(async (req, res) => {
-  const result = await OrderServices.getAllFromDB(req.query);
+  const user = req.user;
+  const result = await OrderServices.getAllFromDB(req.query, user);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -25,7 +26,8 @@ const getAll = catchAsync(async (req, res) => {
 });
 
 const getOne = catchAsync(async (req, res) => {
-  const result = await OrderServices.getOneFromDB(req.params.id);
+  const user = req.user;
+  const result = await OrderServices.getOneFromDB(req.params.id, user);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,

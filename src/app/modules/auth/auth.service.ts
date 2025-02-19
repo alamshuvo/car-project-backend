@@ -24,6 +24,7 @@ const loginUser = async (payload: TLoginPayload) => {
       'This account has been deleted or not exists!',
     );
   const jwtPayload: JwtPayload = {
+    name: user.name,
     email: user.email,
     role: user.role,
   };

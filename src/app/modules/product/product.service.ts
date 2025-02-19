@@ -25,6 +25,22 @@ const getAllFromDB = async (query: Record<string, unknown>) => {
   };
 };
 
+const getTopProductsFromDB = async (query: Record<string, unknown>) => {
+  const productQuery = new QueryBuilder(Product.find(), query);
+  productQuery
+    .search(productSearchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+  const data = await productQuery.modelQuery;
+  const meta = await productQuery.countTotal();
+  return {
+    meta,
+    data,
+  };
+};
+
 const getOneFromDB = async (id: string): Promise<IProduct | null> => {
   const result = await Product.findById(id);
   return result;
@@ -53,6 +69,7 @@ const deleteOneFromDB = async (id: string): Promise<IProduct | null> => {
 export const ProductServices = {
   createOneIntoDB,
   getAllFromDB,
+  getTopProductsFromDB,
   getOneFromDB,
   updateOneIntoDB,
   deleteOneFromDB,

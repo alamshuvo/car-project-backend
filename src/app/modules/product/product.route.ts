@@ -12,6 +12,7 @@ router.post(
 );
 
 router.get('/', ProductControllers.getAll);
+router.get('/top-products', ProductControllers.getTopProducts);
 router.get('/:id', ProductControllers.getOne);
 
 router.patch(
