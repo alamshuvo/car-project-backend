@@ -13,6 +13,17 @@ const createUser = catchAsync(async (req, res) => {
   });
 });
 
+const getDashboardStats = catchAsync(async (req, res) => {
+  const result = await UserServices.getDashboardStats(req.user);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User dashboard stat successfully',
+    data: result,
+  });
+});
+
 export const UserControllers = {
   createUser,
+  getDashboardStats,
 };

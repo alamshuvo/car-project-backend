@@ -1,5 +1,6 @@
 import QueryBuilder from '../../builder/QueryBuilder';
 import AppError from '../../error/AppError';
+import { Order } from '../order/order.model';
 import { productSearchableFields } from './product.constant';
 import { IProduct } from './product.interface';
 import { Product } from './product.model';
@@ -41,6 +42,38 @@ const getTopProductsFromDB = async (query: Record<string, unknown>) => {
   };
 };
 
+const getTrendingProductsFromDB = async () => {
+  // Calculate the date 30 days ago from now
+  const now = new Date();
+  const last30Days = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+  // Aggregate orders to find trending products sold in the last 30 days
+  const topSellingProducts = await Order.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: last30Days, $lte: now },
+      },
+    },
+    { $unwind: '$products' },
+    {
+      $group: {
+        _id: '$products.product',
+        totalSold: { $sum: '$products.quantity' },
+      },
+    },
+    { $sort: { totalSold: -1 } },
+    { $limit: 5 },
+  ]);
+
+  // console.log(topSellingProducts);
+
+  // Fetch detailed product info from Product collection
+  const productIds = topSellingProducts.map((product) => product._id);
+  const products = await Product.find({ _id: { $in: productIds } });
+
+  return products;
+};
+
 const getOneFromDB = async (id: string): Promise<IProduct | null> => {
   const result = await Product.findById(id);
   return result;
@@ -70,6 +103,7 @@ export const ProductServices = {
   createOneIntoDB,
   getAllFromDB,
   getTopProductsFromDB,
+  getTrendingProductsFromDB,
   getOneFromDB,
   updateOneIntoDB,
   deleteOneFromDB,

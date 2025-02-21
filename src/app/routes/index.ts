@@ -8,6 +8,7 @@ import { PaymentRoutes } from '../modules/payment/payment.route';
 import { ReviewRoutes } from '../modules/review/review.route';
 import { CartRoutes } from '../modules/cart/cart.route';
 import { BillingAddressRoutes } from '../modules/billingAddress/billingAddress.route';
+import { UserRoutes } from '../modules/user/user.route';
 
 const router = Router();
 
@@ -25,6 +26,10 @@ const moduleRoutes = [
   {
     path: `${apiPrefix}/auth`,
     route: AuthRoutes,
+  },
+  {
+    path: `${apiPrefix}/user`,
+    route: UserRoutes,
   },
   {
     path: `${apiPrefix}/admin`,

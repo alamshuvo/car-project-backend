@@ -2,6 +2,8 @@ import httpStatus from 'http-status';
 import AppError from '../../error/AppError';
 import { TUser } from './user.interface';
 import { User } from './user.model';
+import { JwtPayload } from 'jsonwebtoken';
+import { Order } from '../order/order.model';
 
 // creates a new user to database
 const createUserIntoDB = async (payload: TUser) => {
@@ -72,9 +74,45 @@ const blockUserInDB = async (id: string) => {
   return blockedUser;
 };
 
+const getDashboardStats = async (userJWTDecoded: JwtPayload) => {
+  const user = await User.isUserExistByEmail(userJWTDecoded.email);
+  if (!user || user.isBlocked || user.isDeleted)
+    throw new AppError(
+      httpStatus.UNAUTHORIZED,
+      'You are not authorized to view this!',
+    );
+  if (user.role === 'user') {
+    const orderStats = await Order.aggregate([
+      { $match: { userId: user._id } },
+      {
+        $group: {
+          _id: null,
+          totalOrders: { $sum: 1 },
+          totalSpent: { $sum: '$totalPrice' },
+        },
+      },
+    ]);
+    const { totalOrders = 0, totalSpent = 0 } = orderStats[0] || {};
+    return { totalOrders, totalSpent };
+  } else {
+    const orderStats = await Order.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalOrders: { $sum: 1 },
+          totalSpent: { $sum: '$totalPrice' },
+        },
+      },
+    ]);
+    const { totalOrders = 0, totalSpent = 0 } = orderStats[0] || {};
+    return { totalOrders, totalSpent };
+  }
+};
+
 export const UserServices = {
   createUserIntoDB,
   updateUserIntoDB,
   deleteUserFromDB,
   blockUserInDB,
+  getDashboardStats,
 };

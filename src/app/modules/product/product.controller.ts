@@ -29,9 +29,18 @@ const getTopProducts = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Products retrieved successfully',
+    message: 'Top Products retrieved successfully',
     data: result.data,
     meta: result.meta,
+  });
+});
+const getTrendingProducts = catchAsync(async (req, res) => {
+  const result = await ProductServices.getTrendingProductsFromDB();
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Trending Products retrieved successfully',
+    data: result,
   });
 });
 
@@ -72,4 +81,5 @@ export const ProductControllers = {
   updateOne,
   deleteOne,
   getTopProducts,
+  getTrendingProducts,
 };
