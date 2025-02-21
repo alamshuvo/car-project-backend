@@ -1,33 +1,42 @@
-import { model, Schema } from 'mongoose';
-import { IPayment } from './payment.interface';
+// payment.model.ts
+import mongoose, { Schema } from 'mongoose';
 
-const paymentSchema = new Schema<IPayment>(
-  {
-    // Add your schema fields here
-    isDeleted: {
-      type: Boolean,
-      default: false,
-    },
+const paymentSchema = new Schema({
+  orderId: {
+    type: String,
+    required: true,
+    unique: true,
   },
-  {
-    timestamps: true,
-    toJSON: {
-      virtuals: true,
-    },
+  amount: {
+    type: Number,
+    required: true,
   },
-);
-
-// pre save middleware/hook
-paymentSchema.pre('save', async function (next) {
-  next();
+  status: {
+    type: String,
+    enum: ['PENDING', 'SUCCESS', 'FAILED'],
+    default: 'PENDING',
+  },
+  spOrderId: {
+    type: String,
+    required: true,
+  },
+  customerInfo: {
+    name: String,
+    phone: String,
+    email: String,
+    address: String,
+  },
+  paymentDetails: {
+    type: Schema.Types.Mixed,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-// post save middleware/hook
-paymentSchema.post('save', function (doc, next) {
-  next();
-});
-
-paymentSchema.pre('updateOne', async function (next) {
-  next();
-});
-export const Payment = model<IPayment>('Payment', paymentSchema);
+export const Payment = mongoose.model('Payment', paymentSchema);

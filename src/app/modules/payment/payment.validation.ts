@@ -2,17 +2,29 @@ import { z } from 'zod';
 
 const createPaymentSchema = z.object({
   body: z.object({
-    // Add your validation schema here
+    orderId: z
+      .string({
+        required_error: 'Order ID is required',
+      })
+      .min(1, {
+        message: 'Order ID cannot be empty',
+      }),
   }),
 });
 
-const updatePaymentSchema = z.object({
+const createPaymentVerificationSchema = z.object({
   body: z.object({
-    // Add your validation schema here
+    orderId: z
+      .string({
+        required_error: 'Order ID is required for verification',
+      })
+      .min(1, {
+        message: 'Order ID cannot be empty',
+      }),
   }),
 });
 
 export const PaymentValidations = {
   createPaymentSchema,
-  updatePaymentSchema,
+  createPaymentVerificationSchema,
 };

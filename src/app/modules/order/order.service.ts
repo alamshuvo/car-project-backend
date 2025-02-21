@@ -9,10 +9,19 @@ import QueryBuilder from '../../builder/QueryBuilder';
 import { orderSearchableFields } from './order.constant';
 import httpStatus from 'http-status';
 import { IProduct } from '../product/product.interface';
+import { generateOrderId } from './order.utils';
+import { BillingAddress } from '../billingAddress/billingAddress.model';
 
 const createOneIntoDB = async (
-  payload: IOrder,
+  payload: {
+    customerName: string;
+    customerAddress: string;
+    customerPhone: string;
+    customerCity: string;
+    customerPostCode: string;
+  } & IOrder,
   userJWTDecoded: JwtPayload,
+  clientIp: string,
 ): Promise<IOrder | undefined> => {
   //* map the product ids with quantity
   const productRequests = payload.products.reduce(
@@ -58,6 +67,7 @@ const createOneIntoDB = async (
     session.startTransaction();
     //* create the order
     const result = await Order.create({
+      orderId: await generateOrderId(),
       userId: user._id,
       totalPrice,
       products: payload.products,
@@ -75,14 +85,26 @@ const createOneIntoDB = async (
       );
 
       await Product.bulkWrite(bulkUpdateOperations);
+
+      //* create billing address
+      await BillingAddress.create({
+        orderId: result._id,
+        userId: user._id,
+        currency: 'BDT',
+        customerAddress: payload.customerAddress,
+        customerCity: payload.customerCity,
+        customerName: payload.customerName,
+        customerPhone: payload.customerPhone,
+        customerPostCode: payload.customerPostCode,
+        clientIp,
+      });
     }
 
     await session.commitTransaction();
     await session.endSession();
 
     return await result.populate('products.product');
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (err) {
+  } catch {
     await session.abortTransaction();
     await session.endSession();
     throw new AppError(

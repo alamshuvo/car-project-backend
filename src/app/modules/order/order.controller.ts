@@ -5,7 +5,15 @@ import { OrderServices } from './order.service';
 
 const createOne = catchAsync(async (req, res) => {
   const user = req.user;
-  const result = await OrderServices.createOneIntoDB(req.body, user);
+  let clientIp = req.ip || req.headers['x-forwarded-for'];
+  if (clientIp === '::1' || clientIp === '::ffff:127.0.0.1') {
+    clientIp = '127.0.0.1';
+  }
+  const result = await OrderServices.createOneIntoDB(
+    req.body,
+    user,
+    clientIp as string,
+  );
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,

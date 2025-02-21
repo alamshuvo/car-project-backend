@@ -1,62 +1,60 @@
+import { Request, Response } from 'express';
 import httpStatus from 'http-status';
-import catchAsync from '../../utils/catchAsync';
+import * as PaymentService from './payment.service';
 import sendResponse from '../../utils/sendResponse';
-import { PaymentServices } from './payment.service';
+import catchAsync from '../../utils/catchAsync';
 
-const createOne = catchAsync(async (req, res) => {
-  const result = await PaymentServices.createOneIntoDB(req.body);
+export const createPayment = catchAsync(async (req: Request, res: Response) => {
+  const result = await PaymentService.initiatePayment(req.body);
+
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Payment created successfully',
+    message: 'Payment initiated successfully',
     data: result,
   });
 });
 
-const getAll = catchAsync(async (req, res) => {
-  const result = await PaymentServices.getAllFromDB();
+export const verifyPayment = catchAsync(async (req: Request, res: Response) => {
+  const result = await PaymentService.verifyPayment(
+    req.query.order_id as string,
+  );
+
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Payments retrieved successfully',
+    message: 'Payment verified successfully',
     data: result,
   });
 });
 
-const getOne = catchAsync(async (req, res) => {
-  const result = await PaymentServices.getOneFromDB(req.params.id);
+export const checkStatus = catchAsync(async (req: Request, res: Response) => {
+  const result = await PaymentService.checkPaymentStatus(req.body.order_id);
+
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Payment retrieved successfully',
+    message: 'Payment status retrieved successfully',
     data: result,
   });
 });
 
-const updateOne = catchAsync(async (req, res) => {
-  const result = await PaymentServices.updateOneIntoDB(req.params.id, req.body);
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Payment updated successfully',
-    data: result,
-  });
-});
+export const getAllPayments = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await PaymentService.getAllFromDB();
 
-const deleteOne = catchAsync(async (req, res) => {
-  const result = await PaymentServices.deleteOneFromDB(req.params.id);
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Payment deleted successfully',
-    data: result,
-  });
-});
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Payments retrieved successfully',
+      data: result,
+    });
+  },
+);
 
 export const PaymentControllers = {
-  createOne,
-  getAll,
-  getOne,
-  updateOne,
-  deleteOne,
+  createPayment,
+  verifyPayment,
+  checkStatus,
+  getAllPayments,
 };

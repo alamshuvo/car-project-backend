@@ -3,6 +3,7 @@ import { IOrder, orderStatuses } from './order.interface';
 
 const orderSchema = new Schema<IOrder>(
   {
+    orderId: { type: String, required: true, unique: true },
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     products: [
       {

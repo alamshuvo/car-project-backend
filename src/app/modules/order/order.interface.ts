@@ -14,7 +14,8 @@ interface IOrderProduct {
 }
 
 export interface IOrder {
-  userId: Types.ObjectId; // Reference to User model
+  orderId: string;
+  userId: Types.ObjectId;
   products: IOrderProduct[];
   totalPrice: number;
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
