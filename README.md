@@ -7,7 +7,7 @@ A robust Express.js backend service for Car Valley, featuring secure authenticat
 ## 🌐 Live API
 
 - **Frontend:** [Car Valley](https://carstore-frontend.vercel.app)
-- **Production API:** [Backend API URL](https://vercel.com/smtamims-projects/carstore-with-payment-gateway)
+- **Production API:** [Backend API URL](carstore-with-payment-gateway.vercel.app)
 - **GitHub Repository:** [https://github.com/SMTamim/ph-a4-express-ecommerce-server](https://github.com/SMTamim/ph-a4-express-ecommerce-server)
 
 ## ✨ Key Features
