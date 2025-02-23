@@ -21,7 +21,6 @@ const getOneFromDB = async (
   userJWTDecoded: JwtPayload,
 ): Promise<IBillingAddress | null> => {
   const user = await User.isUserExistByEmail(userJWTDecoded.email);
-  console.log(user);
   if (!user || !(user.role === 'user'))
     throw new AppError(
       httpStatus.UNAUTHORIZED,

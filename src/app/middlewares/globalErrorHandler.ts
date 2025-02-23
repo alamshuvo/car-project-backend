@@ -15,7 +15,6 @@ import AuthError from '../error/AuthError';
 import handleAuthError from '../error/handleAuthError';
 
 const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
-  console.log(err);
   const message = err.message || 'Something went wrong';
 
   const errorSources: TErrorSources = [
