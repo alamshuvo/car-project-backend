@@ -11,10 +11,7 @@ const app: Application = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: [
-      'http://localhost:5173',
-      'https://guiding-peaceful-polliwog.ngrok-free.app',
-    ],
+    origin: ['http://localhost:5173', 'https://carstore-frontend.vercel.app'],
     credentials: true,
   }),
 );

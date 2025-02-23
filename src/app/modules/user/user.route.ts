@@ -11,10 +11,11 @@ router.get(
   auth('admin', 'user'),
   UserControllers.getDashboardStats,
 );
+router.get('/', auth('admin'), UserControllers.getAllUsers);
 
 router.patch(
   '/:id',
-  auth('admin', 'user'),
+  auth('admin'),
   validateRequest(UserValidations.updateUserValidationSchema),
   UserControllers.updateUser,
 );

@@ -4,6 +4,8 @@ import { TUser } from './user.interface';
 import { User } from './user.model';
 import { JwtPayload } from 'jsonwebtoken';
 import { Order } from '../order/order.model';
+import QueryBuilder from '../../builder/QueryBuilder';
+import { userSearchableFields } from './user.constant';
 
 // creates a new user to database
 const createUserIntoDB = async (payload: TUser) => {
@@ -16,6 +18,27 @@ const createUserIntoDB = async (payload: TUser) => {
     return await User.findById(result._id).select('name email');
   }
   return result;
+};
+
+// gets all users from database
+const getAllUsersFromDB = async (
+  query: Record<string, unknown>,
+  userJWTDecoded: JwtPayload,
+) => {
+  if (userJWTDecoded) {
+    const user = await User.isUserExistByEmail(userJWTDecoded.email);
+
+    if (!user?._id) throw new AppError(httpStatus.NOT_FOUND, 'User not found!');
+    const userQuery = new QueryBuilder(
+      User.find({ _id: { $ne: user._id } }),
+      query,
+    );
+    userQuery.search(userSearchableFields).sort().paginate().fields();
+    const users = await userQuery.modelQuery;
+    const meta = await userQuery.countTotal();
+    return { users, meta };
+  }
+  throw new AppError(httpStatus.UNAUTHORIZED, 'Unauthorized');
 };
 
 const updateUserIntoDB = async (id: string, payload: Partial<TUser>) => {
@@ -172,6 +195,7 @@ export const UserServices = {
   createUserIntoDB,
   updateUserIntoDB,
   updateUserPasswordIntoDB,
+  getAllUsersFromDB,
   deleteUserFromDB,
   blockUserInDB,
   getDashboardStats,
