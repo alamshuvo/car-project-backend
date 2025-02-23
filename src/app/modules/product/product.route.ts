@@ -2,6 +2,7 @@ import express from 'express';
 import validateRequest from '../../middlewares/validateRequest';
 import { ProductControllers } from './product.controller';
 import { ProductValidations } from './product.validation';
+import authOptional from '../../middlewares/authOptional';
 
 const router = express.Router();
 
@@ -14,7 +15,7 @@ router.post(
 router.get('/', ProductControllers.getAll);
 router.get('/top-products', ProductControllers.getTopProducts);
 router.get('/trending-products', ProductControllers.getTrendingProducts);
-router.get('/:id', ProductControllers.getOne);
+router.get('/:id', authOptional, ProductControllers.getOne);
 
 router.patch(
   '/:id',

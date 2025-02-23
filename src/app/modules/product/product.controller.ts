@@ -45,7 +45,7 @@ const getTrendingProducts = catchAsync(async (req, res) => {
 });
 
 const getOne = catchAsync(async (req, res) => {
-  const result = await ProductServices.getOneFromDB(req.params.id);
+  const result = await ProductServices.getOneFromDB(req.params.id, req.user);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,

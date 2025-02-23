@@ -48,9 +48,7 @@ const createOneIntoDB = async (
   }
 
   const reviewPayload = {
-    productId: payload.productId,
-    rating: payload.rating,
-    comment: payload.comment ?? '',
+    ...payload,
     userId: user._id,
   };
 
@@ -59,7 +57,10 @@ const createOneIntoDB = async (
 };
 
 const getAllFromDB = async (query: Record<string, unknown>) => {
-  const queryBuilder = new QueryBuilder(Review.find(), query);
+  const queryBuilder = new QueryBuilder(
+    Review.find({ isDeleted: false }),
+    query,
+  );
 
   queryBuilder
     .search(reviewSearchableFields)
@@ -68,7 +69,7 @@ const getAllFromDB = async (query: Record<string, unknown>) => {
     .paginate()
     .fields();
 
-  const result = await queryBuilder.modelQuery;
+  const result = await queryBuilder.modelQuery.populate('userId', 'name');
   const meta = await queryBuilder.countTotal();
 
   return {
