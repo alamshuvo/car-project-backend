@@ -12,7 +12,9 @@ const main = async () => {
     // seed admin if no admin
     await seedAdmin();
     app.listen(config.port, () => {
-      console.log(`Blog app running on http://localhost:${config.port}`);
+      console.log(
+        `CarStore Backend running on http://localhost:${config.port}`,
+      );
     });
   } catch (error) {
     console.log(error);
