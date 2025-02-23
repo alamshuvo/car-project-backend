@@ -15,6 +15,7 @@ router.post(
 router.get('/', ProductControllers.getAll);
 router.get('/top-products', ProductControllers.getTopProducts);
 router.get('/trending-products', ProductControllers.getTrendingProducts);
+router.get('/similar-products/:id', ProductControllers.getSimilarProducts);
 router.get('/:id', authOptional, ProductControllers.getOne);
 
 router.patch(

@@ -9,30 +9,14 @@ import { User } from '../user/user.model';
 import { OrderStatuses } from '../order/order.constant';
 import { Review } from '../review/review.model';
 import { Types } from 'mongoose';
-
-const getReviewStats = async (productIds: Types.ObjectId[]) => {
-  return await Review.aggregate([
-    {
-      $match: {
-        productId: { $in: productIds },
-        isDeleted: false,
-      },
-    },
-    {
-      $group: {
-        _id: '$productId',
-        totalReviews: { $sum: 1 },
-        averageRating: { $avg: '$rating' },
-      },
-    },
-  ]);
-};
+import { getReviewStats, getSimilarProducts } from './product.utils';
 
 const createOneIntoDB = async (payload: IProduct): Promise<IProduct> => {
   const result = await Product.create(payload);
   return result;
 };
 
+// fetch all products
 const getAllFromDB = async (query: Record<string, unknown>) => {
   const productQuery = new QueryBuilder(Product.find(), query);
   productQuery
@@ -72,6 +56,7 @@ const getAllFromDB = async (query: Record<string, unknown>) => {
   };
 };
 
+// fetch top products from db
 const getTopProductsFromDB = async () => {
   // Aggregate orders to find top-selling products of all time
   const topSellingProducts = await Order.aggregate([
@@ -116,6 +101,7 @@ const getTopProductsFromDB = async () => {
   return productsWithStats;
 };
 
+// fetch single product from db
 const getTrendingProductsFromDB = async () => {
   // Calculate the date 30 days ago from now
   const now = new Date();
@@ -171,6 +157,7 @@ const getTrendingProductsFromDB = async () => {
   return productsWithStats;
 };
 
+// fetch single product from db
 const getOneFromDB = async (id: string, userJWTDecoded: JwtPayload) => {
   const result = await Product.findById(id);
   let hasPurchased = false;
@@ -209,6 +196,7 @@ const getOneFromDB = async (id: string, userJWTDecoded: JwtPayload) => {
   return { result, hasPurchased, totalReviews, averageRating };
 };
 
+// update a product into db
 const updateOneIntoDB = async (
   id: string,
   payload: Partial<IProduct>,
@@ -217,6 +205,7 @@ const updateOneIntoDB = async (
   return result;
 };
 
+//  mark a product as deleted by admin
 const deleteOneFromDB = async (id: string): Promise<IProduct | null> => {
   const result = await Product.findByIdAndUpdate(
     id,
@@ -229,11 +218,25 @@ const deleteOneFromDB = async (id: string): Promise<IProduct | null> => {
   return result;
 };
 
+// gets similar products from DB
+const getSimilarProductsFromDB = async (productId: string, limit?: number) => {
+  try {
+    const similarProducts = await getSimilarProducts(productId, limit);
+    return similarProducts;
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+    throw new AppError(500, 'Failed to fetch similar products');
+  }
+};
+
 export const ProductServices = {
   createOneIntoDB,
   getAllFromDB,
   getTopProductsFromDB,
   getTrendingProductsFromDB,
+  getSimilarProductsFromDB,
   getOneFromDB,
   updateOneIntoDB,
   deleteOneFromDB,

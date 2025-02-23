@@ -44,6 +44,19 @@ const getTrendingProducts = catchAsync(async (req, res) => {
   });
 });
 
+const getSimilarProducts = catchAsync(async (req, res) => {
+  const result = await ProductServices.getSimilarProductsFromDB(
+    req.params.id,
+    3,
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Similar Products retrieved successfully',
+    data: result,
+  });
+});
+
 const getOne = catchAsync(async (req, res) => {
   const result = await ProductServices.getOneFromDB(req.params.id, req.user);
   sendResponse(res, {
@@ -82,4 +95,5 @@ export const ProductControllers = {
   deleteOne,
   getTopProducts,
   getTrendingProducts,
+  getSimilarProducts,
 };
