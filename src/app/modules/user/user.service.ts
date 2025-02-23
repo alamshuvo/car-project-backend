@@ -18,8 +18,29 @@ const createUserIntoDB = async (payload: TUser) => {
   return result;
 };
 
-const updateUserIntoDB = async (payload: Partial<TUser>) => {
-  const result = await User.create(payload);
+const updateUserIntoDB = async (id: string, payload: Partial<TUser>) => {
+  const result = await User.findByIdAndUpdate(id, payload, { new: true });
+  return result;
+};
+
+const updateUserPasswordIntoDB = async (
+  userJWTDecoded: JwtPayload,
+  payload: { password: string; currentPassword: string },
+) => {
+  const user = await User.isUserExistByEmail(userJWTDecoded.email);
+  if (!user?._id) throw new AppError(httpStatus.NOT_FOUND, 'User not found!');
+  if (!(await User.comparePassword(payload.currentPassword, user.password))) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Current password is incorrect');
+  }
+
+  const result = await User.findOneAndUpdate(
+    { _id: user._id },
+    { password: payload.password },
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
   return result;
 };
 
@@ -83,35 +104,74 @@ const getDashboardStats = async (userJWTDecoded: JwtPayload) => {
     );
   if (user.role === 'user') {
     const orderStats = await Order.aggregate([
-      { $match: { userId: user._id } },
+      {
+        $match: {
+          userId: user._id,
+        },
+      },
       {
         $group: {
           _id: null,
           totalOrders: { $sum: 1 },
-          totalSpent: { $sum: '$totalPrice' },
+          totalSpent: {
+            $sum: {
+              $cond: [{ $eq: ['$status', 'processing'] }, '$totalPrice', 0],
+            },
+          },
+          // Count pending and processing orders
+          pendingOrders: {
+            $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] },
+          },
+          processingOrders: {
+            $sum: { $cond: [{ $eq: ['$status', 'processing'] }, 1, 0] },
+          },
         },
       },
     ]);
-    const { totalOrders = 0, totalSpent = 0 } = orderStats[0] || {};
-    return { totalOrders, totalSpent };
+    const {
+      totalOrders = 0,
+      totalSpent = 0,
+      pendingOrders = 0,
+      processingOrders = 0,
+    } = orderStats[0] || {};
+
+    return { totalOrders, totalSpent, pendingOrders, processingOrders };
   } else {
     const orderStats = await Order.aggregate([
       {
         $group: {
           _id: null,
           totalOrders: { $sum: 1 },
-          totalSpent: { $sum: '$totalPrice' },
+          totalSpent: {
+            $sum: {
+              $cond: [{ $eq: ['$status', 'processing'] }, '$totalPrice', 0],
+            },
+          },
+          // Count pending and processing orders
+          deliveredOrders: {
+            $sum: { $cond: [{ $eq: ['$status', 'delivered'] }, 1, 0] },
+          },
+          processingOrders: {
+            $sum: { $cond: [{ $eq: ['$status', 'processing'] }, 1, 0] },
+          },
         },
       },
     ]);
-    const { totalOrders = 0, totalSpent = 0 } = orderStats[0] || {};
-    return { totalOrders, totalSpent };
+    const {
+      totalOrders = 0,
+      totalSpent = 0,
+      deliveredOrders = 0,
+      processingOrders = 0,
+    } = orderStats[0] || {};
+
+    return { totalOrders, totalSpent, deliveredOrders, processingOrders };
   }
 };
 
 export const UserServices = {
   createUserIntoDB,
   updateUserIntoDB,
+  updateUserPasswordIntoDB,
   deleteUserFromDB,
   blockUserInDB,
   getDashboardStats,

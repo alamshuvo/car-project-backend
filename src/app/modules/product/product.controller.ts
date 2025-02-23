@@ -25,15 +25,15 @@ const getAll = catchAsync(async (req, res) => {
 });
 
 const getTopProducts = catchAsync(async (req, res) => {
-  const result = await ProductServices.getTopProductsFromDB(req.query);
+  const result = await ProductServices.getTopProductsFromDB();
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Top Products retrieved successfully',
-    data: result.data,
-    meta: result.meta,
+    data: result,
   });
 });
+
 const getTrendingProducts = catchAsync(async (req, res) => {
   const result = await ProductServices.getTrendingProductsFromDB();
   sendResponse(res, {

@@ -3,6 +3,7 @@ import validateRequest from '../../middlewares/validateRequest';
 import { AuthValidations } from './auth.validation';
 import { UserControllers } from '../user/user.controller';
 import { AuthControllers } from './auth.controller';
+import auth from '../../middlewares/auth';
 
 const router = Router();
 
@@ -11,6 +12,13 @@ router.post(
   '/register',
   validateRequest(AuthValidations.createUserValidationSchema),
   UserControllers.createUser,
+);
+
+router.patch(
+  '/update-password',
+  auth('admin', 'user'),
+  validateRequest(AuthValidations.updatePasswordValidationSchema),
+  UserControllers.updatePassword,
 );
 
 router.post(

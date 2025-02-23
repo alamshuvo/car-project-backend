@@ -26,20 +26,25 @@ const getAllFromDB = async (query: Record<string, unknown>) => {
   };
 };
 
-const getTopProductsFromDB = async (query: Record<string, unknown>) => {
-  const productQuery = new QueryBuilder(Product.find(), query);
-  productQuery
-    .search(productSearchableFields)
-    .filter()
-    .sort()
-    .paginate()
-    .fields();
-  const data = await productQuery.modelQuery;
-  const meta = await productQuery.countTotal();
-  return {
-    meta,
-    data,
-  };
+const getTopProductsFromDB = async () => {
+  // Aggregate orders to find top-selling products of all time
+  const topSellingProducts = await Order.aggregate([
+    { $unwind: '$products' },
+    {
+      $group: {
+        _id: '$products.product',
+        totalSold: { $sum: '$products.quantity' },
+      },
+    },
+    { $sort: { totalSold: -1 } },
+    { $limit: 4 },
+  ]);
+
+  // Fetch detailed product info from Product collection
+  const productIds = topSellingProducts.map((product) => product._id);
+  const products = await Product.find({ _id: { $in: productIds } });
+
+  return products;
 };
 
 const getTrendingProductsFromDB = async () => {

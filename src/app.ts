@@ -9,12 +9,15 @@ const app: Application = express();
 
 // parsers
 app.use(express.json());
-app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'https://guiding-peaceful-polliwog.ngrok-free.app'
-  ], credentials: true
-}));
+app.use(
+  cors({
+    origin: [
+      'http://localhost:5173',
+      'https://guiding-peaceful-polliwog.ngrok-free.app',
+    ],
+    credentials: true,
+  }),
+);
 app.use(cookieParser());
 
 app.use('/', router);

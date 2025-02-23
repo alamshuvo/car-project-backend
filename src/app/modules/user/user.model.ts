@@ -88,4 +88,16 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+// hash the user password before updating when updating user
+userSchema.pre('findOneAndUpdate', async function (next) {
+  const update = this.getUpdate() as { password?: string };
+  if (update.password) {
+    update.password = await bcrypt.hash(
+      update.password,
+      Number(config.bcrypt_salt_round),
+    );
+  }
+  next();
+});
+
 export const User = model<TUser, TUserModel>('User', userSchema);

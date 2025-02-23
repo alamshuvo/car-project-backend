@@ -13,6 +13,29 @@ const createUser = catchAsync(async (req, res) => {
   });
 });
 
+const updateUser = catchAsync(async (req, res) => {
+  const result = await UserServices.updateUserIntoDB(req.params.id, req.body);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User updated successfully',
+    data: result,
+  });
+});
+
+const updatePassword = catchAsync(async (req, res) => {
+  const result = await UserServices.updateUserPasswordIntoDB(
+    req.user,
+    req.body,
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Password has been updated successfully',
+    data: result,
+  });
+});
+
 const getDashboardStats = catchAsync(async (req, res) => {
   const result = await UserServices.getDashboardStats(req.user);
   sendResponse(res, {
@@ -25,5 +48,7 @@ const getDashboardStats = catchAsync(async (req, res) => {
 
 export const UserControllers = {
   createUser,
+  updateUser,
+  updatePassword,
   getDashboardStats,
 };
