@@ -11,6 +11,7 @@ import httpStatus from 'http-status';
 import { IProduct } from '../product/product.interface';
 import { generateOrderId } from './order.utils';
 import { BillingAddress } from '../billingAddress/billingAddress.model';
+import { Payment } from '../payment/payment.model';
 
 const createOneIntoDB = async (
   payload: {
@@ -142,22 +143,45 @@ const getAllFromDB = async (
   };
 };
 
-const getOneFromDB = async (
-  id: string,
-  userJWTDecoded: JwtPayload,
-): Promise<IOrder | null> => {
+const getOneFromDB = async (id: string, userJWTDecoded: JwtPayload) => {
   const user = await User.isUserExistByEmail(userJWTDecoded.email);
-  if (!user?._id)
+  if (!user?._id) {
     throw new AppError(
-      httpStatus.UNAUTHORIZED,
+      httpStatus.BAD_REQUEST,
       'You are not authorized to view this!',
     );
+  }
 
-  const result = await Order.findById(id).populate('products.product');
-  if (!result) throw new AppError(httpStatus.NOT_FOUND, 'Order not found!');
-  if (user.role === 'user' && result?.userId.toString() !== user._id.toString())
+  const result = await Order.findById(id)
+    .populate('products.product')
+    .populate('userId', 'name email')
+    .lean();
+
+  if (!result) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Order not found!');
+  }
+
+  // Check if the user has permission to view the order
+  if (
+    user.role === 'user' &&
+    result?.userId._id.toString() !== user._id.toString()
+  ) {
     throw new AppError(httpStatus.FORBIDDEN, 'Order not found!');
-  return result;
+  }
+
+  // Fetch Payment Details using orderId
+  const payment = await Payment.findOne({ orderId: result.orderId }).lean();
+
+  // Fetch Billing Address using orderId
+  const billingAddress = await BillingAddress.findOne({
+    orderId: result._id,
+  }).lean();
+
+  return {
+    ...result,
+    paymentDetails: payment || null,
+    billingAddress: billingAddress || null,
+  };
 };
 
 const updateOneIntoDB = async (

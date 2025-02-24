@@ -57,10 +57,15 @@ const createOneIntoDB = async (
 };
 
 const getAllFromDB = async (query: Record<string, unknown>) => {
-  const queryBuilder = new QueryBuilder(
-    Review.find({ isDeleted: false }),
-    query,
-  );
+  const match: {
+    isDeleted: boolean;
+    productId?: string;
+  } = { isDeleted: false };
+
+  if (query.productId) {
+    match.productId = query.productId as string;
+  }
+  const queryBuilder = new QueryBuilder(Review.find(match), query);
 
   queryBuilder
     .search(reviewSearchableFields)

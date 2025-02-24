@@ -23,6 +23,19 @@ export const initiatePayment = async ({ orderId }: { orderId: string }) => {
     if (!order) {
       throw new AppError(httpStatus.NOT_FOUND, 'Order not found!');
     }
+
+    if (order.status === 'cancelled') {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Order is already cancelled!');
+    }
+
+    if (order.status === 'delivered') {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Order is already delivered!');
+    }
+
+    if (order.status === 'shipped') {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Order is already shipped!');
+    }
+
     const payment = await Payment.findOne({ spOrderId: orderId });
     if (payment) {
       throw new AppError(httpStatus.BAD_REQUEST, 'Payment already initiated'!);
@@ -109,8 +122,10 @@ export const verifyPayment = async (orderId: string) => {
         throw new Error('Order not found');
       }
 
-      order.status = 'processing';
-      await order.save({ session });
+      if (order.status !== 'cancelled') {
+        order.status = 'processing';
+        await order.save({ session });
+      }
     }
 
     await session.commitTransaction();
