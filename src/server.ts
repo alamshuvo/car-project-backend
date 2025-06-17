@@ -54,7 +54,7 @@ process.on('uncaughtException', (error) => {
   gracefulShutdown();
 });
 
-// Handle SIGTERM signal
+// Handle SIGTERM signal and some code added 
 process.on('SIGTERM', () => {
   console.log('SIGTERM received');
   gracefulShutdown();
