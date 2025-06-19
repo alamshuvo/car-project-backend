@@ -6,7 +6,7 @@ import config from './app/config';
 import seedAdmin from './app/DB';
 
 let server: Server;
-// some code added some code added some code added
+// some code added some code added some code added now added 
 const gracefulShutdown = () => {
   if (server) {
     server.close(() => {
